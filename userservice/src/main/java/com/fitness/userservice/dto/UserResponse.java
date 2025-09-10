@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserResponse {
     private String id;
+    private String username;
     private String keycloakId;
     private String email;
     private String password;

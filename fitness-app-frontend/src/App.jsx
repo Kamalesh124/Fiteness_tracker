@@ -1,78 +1,105 @@
-import { Box, Button, Typography } from "@mui/material";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "react-oauth2-code-pkce";
-import { useDispatch } from "react-redux";
-import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from "react-router";
-import { setCredentials } from "./store/authSlice";
-import ActivityForm from "./components/ActivityForm";
-import ActivityList from "./components/ActivityList";
-import ActivityDetail from "./components/ActivityDetail";
+"use client"
 
-const ActvitiesPage = () => {
-  return (<Box sx={{ p: 2, border: '1px dashed grey' }}>
-    <ActivityForm onActivitiesAdded = {() => window.location.reload()} />
-    <ActivityList />
-  </Box>);
-}
+import { useEffect } from "react"
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { useSelector, useDispatch } from "react-redux"
+import { ThemeProvider, createTheme } from "@mui/material/styles"
+import CssBaseline from "@mui/material/CssBaseline"
+import { logout, checkAuthStatus } from "./store/authSlice"
+import AuthForm from "./components/AuthForm"
+import Dashboard from "./components/Dashboard"
+import ActivityDetail from "./components/ActivityDetail"
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#667eea",
+    },
+    secondary: {
+      main: "#764ba2",
+    },
+    background: {
+      default: "#f5f5f5",
+    },
+  },
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h4: {
+      fontWeight: 700,
+    },
+    h5: {
+      fontWeight: 600,
+    },
+    h6: {
+      fontWeight: 600,
+    },
+  },
+  shape: {
+    borderRadius: 12,
+  },
+  components: {
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: "none",
+          borderRadius: 8,
+          fontWeight: 600,
+        },
+      },
+    },
+  },
+})
 
 function App() {
-  const { token, tokenData, logIn, logOut, isAuthenticated } = useContext(AuthContext);
-  const dispatch = useDispatch();
-  const [authReady, setAuthReady] = useState(false);
-  
+  const { user, token, isLoading } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+
   useEffect(() => {
-    if (token) {
-      dispatch(setCredentials({token, user: tokenData}));
-      setAuthReady(true);
-    }
-  }, [token, tokenData, dispatch]);
+    dispatch(checkAuthStatus())
+  }, [dispatch])
+
+  const handleLogout = () => {
+    dispatch(logout())
+  }
+
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+          fontSize: "18px",
+        }}
+      >
+        Loading...
+      </div>
+    )
+  }
 
   return (
-    <Router>
-      {!token ? (
-      <Box
-      sx={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        textAlign: "center",
-      }}
-    >
-      <Typography variant="h4" gutterBottom>
-        Welcome to the Fitness Tracker App
-      </Typography>
-      <Typography variant="subtitle1" sx={{ mb: 3 }}>
-        Please login to access your activities
-      </Typography>
-      <Button variant="contained" color="primary" size="large" onClick={() => {
-                logIn();
-              }}>
-        LOGIN
-      </Button>
-    </Box>
-            ) : (
-              // <div>
-              //   <pre>{JSON.stringify(tokenData, null, 2)}</pre>
-              //   <pre>{JSON.stringify(token, null, 2)}</pre>
-              // </div>
-
-             
-
-              <Box sx={{ p: 2, border: '1px dashed grey' }}>
-                 <Button variant="contained" color="secondary" onClick={logOut}>
-                  Logout
-                </Button>
-              <Routes>
-                <Route path="/activities" element={<ActvitiesPage />}/>
-                <Route path="/activities/:id" element={<ActivityDetail />}/>
-
-                <Route path="/" element={token ? <Navigate to="/activities" replace/> : <div>Welcome! Please Login.</div>} />
-              </Routes>
-            </Box>
-            )}
-    </Router>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        {!token ? (
+          <AuthForm />
+        ) : (
+          <Routes>
+            <Route path="/activities" element={<Dashboard user={user} onLogout={handleLogout} />} />
+            <Route path="/activities/:id" element={<ActivityDetail />} />
+            <Route path="/" element={<Navigate to="/activities" replace />} />
+          </Routes>
+        )}
+      </Router>
+    </ThemeProvider>
   )
 }
 

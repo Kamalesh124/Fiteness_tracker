@@ -17,6 +17,12 @@ spring:
               predicates:
                 - Path=/api/users/**
 
+            - id: keycloak-user-controller
+              uri: lb://USER-SERVICE
+              predicates:
+                 - Path=/api/keycloak/**
+
+
             - id: activity-service
               uri: lb://ACTIVITY-SERVICE
               predicates:

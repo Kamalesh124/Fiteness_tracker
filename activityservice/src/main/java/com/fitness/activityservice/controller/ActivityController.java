@@ -1,9 +1,10 @@
+// Updated ActivityController.java
 package com.fitness.activityservice.controller;
 
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,10 @@ import com.fitness.activityservice.service.ActivityService;
 @RestController
 @RequestMapping("/api/activities")
 public class ActivityController {
-
+    
     @Autowired
     private ActivityService activityService;
-
-
+    
     @PostMapping
     public ResponseEntity<ActivityResponse> trackActivity(@RequestBody ActivityRequest request, @RequestHeader("X-User-ID") String userId){
         if(userId != null){
@@ -31,15 +31,20 @@ public class ActivityController {
         }
         return ResponseEntity.ok(activityService.trackActivity(request));
     }
-
+    
     @GetMapping
     public ResponseEntity<List<ActivityResponse>> getActivities(@RequestHeader("X-User-ID") String userId){
         return ResponseEntity.ok(activityService.getUserActivities(userId));
     }
-
+    
     @GetMapping("/{activityId}")
     public ResponseEntity<ActivityResponse> getActivity(@PathVariable String activityId){
         return ResponseEntity.ok(activityService.getActivityById(activityId));
     }
-
+    
+    @DeleteMapping("/{activityId}")
+    public ResponseEntity<Void> deleteActivity(@PathVariable String activityId, @RequestHeader("X-User-ID") String userId){
+        activityService.deleteActivity(activityId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }

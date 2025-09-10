@@ -22,7 +22,7 @@ public class RabbitMqConfig {
     @Value("${rabbitmq.routing.key}")
     private String routing;
 
-    @Bean
+    @Bean  
     public Queue activityQueue(){
         return new Queue(queueName,true);
     }

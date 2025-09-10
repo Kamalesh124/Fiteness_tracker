@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,7 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="users")
+@Table(name = "users")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,15 +28,17 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(unique = true,nullable=false)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    
+    @Column(unique = true, nullable = false)
+    private String username; 
 
     private String keycloakId;
 
     @Column(nullable = false)
     private String password;
+
     private String firstName;
     private String lastName;
 
@@ -45,8 +46,8 @@ public class User {
     private UserRole role = UserRole.USER;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;  //To automatically populate when data is put into database //only once
+    private LocalDateTime createdAt;
 
-    @UpdateTimestamp //To update the time stamp whenever anything changes
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }
